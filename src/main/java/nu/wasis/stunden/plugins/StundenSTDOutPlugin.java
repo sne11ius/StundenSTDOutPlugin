@@ -47,8 +47,7 @@ public class StundenSTDOutPlugin implements OutputPlugin {
             final Map<String, Duration> durations = new HashMap<>();
             Duration totalDuration = null;
             for (final Entry entry : day.getEntries()) {
-                p(entry.getBegin().toString(DateUtils.TIME_FORMATTER) + " - " + entry.getEnd().toString(DateUtils.TIME_FORMATTER) + ": "
-                  + entry.getProject().getName());
+                p(entry.getBegin().toString(DateUtils.TIME_FORMATTER) + " - " + entry.getEnd().toString(DateUtils.TIME_FORMATTER) + ": " + entry.getProject().getName());
                 final Duration newDuration = new Interval(entry.getBegin(), entry.getEnd()).toDuration();
                 if (null == totalDuration) {
                     totalDuration = new Duration(newDuration);
