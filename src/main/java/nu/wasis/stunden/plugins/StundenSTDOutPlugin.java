@@ -1,7 +1,6 @@
 package nu.wasis.stunden.plugins;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import net.xeoh.plugins.base.annotations.PluginImplementation;
@@ -9,7 +8,6 @@ import nu.wasis.stunden.model.Day;
 import nu.wasis.stunden.model.Entry;
 import nu.wasis.stunden.model.WorkPeriod;
 import nu.wasis.stunden.plugin.OutputPlugin;
-import nu.wasis.stunden.plugins.stdout.config.StundenSTDOutPluginConfig;
 import nu.wasis.stunden.util.DateUtils;
 
 import org.joda.time.Duration;
@@ -26,11 +24,6 @@ public class StundenSTDOutPlugin implements OutputPlugin {
 
     @Override
     public void output(final WorkPeriod workPeriod, final Object config) {
-        List<String> noWork = null;
-        if (null != config) {
-            final StundenSTDOutPluginConfig myConfig = (StundenSTDOutPluginConfig) config;
-            noWork = myConfig.getNoWork();
-        }
         p("Start of period\t: " + workPeriod.getBegin().toString(DateUtils.DATE_FORMATTER));
         p("End of period\t: " + workPeriod.getEnd().toString(DateUtils.DATE_FORMATTER));
         p("============================");
@@ -45,17 +38,9 @@ public class StundenSTDOutPlugin implements OutputPlugin {
             p(day.getDate().toString(DateUtils.DATE_FORMATTER));
             p("==========");
             final Map<String, Duration> durations = new HashMap<>();
-            Duration totalDuration = null;
             for (final Entry entry : day.getEntries()) {
-                p(entry.getBegin().toString(DateUtils.TIME_FORMATTER) + " - " + entry.getEnd().toString(DateUtils.TIME_FORMATTER) + ": " + entry.getProject().getName());
+                p(entry.getBegin().toString(DateUtils.TIME_FORMATTER) + " - " + entry.getEnd().toString(DateUtils.TIME_FORMATTER) + ": " + entry.getProject().getName() + (entry.isBreak() ? " (break)" : ""));
                 final Duration newDuration = new Interval(entry.getBegin(), entry.getEnd()).toDuration();
-                if (null == totalDuration) {
-                    totalDuration = new Duration(newDuration);
-                } else {
-                    if (!noWork.contains(entry.getProject().getName())) {
-                        totalDuration = totalDuration.plus(newDuration);
-                    }
-                }
                 if (!durations.containsKey(entry.getProject().getName())) {
                     durations.put(entry.getProject().getName(), newDuration);
                 } else {
@@ -67,12 +52,12 @@ public class StundenSTDOutPlugin implements OutputPlugin {
             for (final Map.Entry<String, Duration> entry : durations.entrySet()) {
                 p("\t" + entry.getKey() + ": " + entry.getValue().toPeriod().toString(DateUtils.PERIOD_FORMATTER));
             }
-            p("\tTotal: " + totalDuration.toPeriod().normalizedStandard().toString(DateUtils.PERIOD_FORMATTER));
+            p("\tTotal work time: " + DateUtils.PERIOD_FORMATTER.print(day.getWorkDuration().toPeriod()));//.normalizedStandard().toString(DateUtils.PERIOD_FORMATTER));
         }
     }
 
     @Override
-    public Class<StundenSTDOutPluginConfig> getConfigurationClass() {
-        return StundenSTDOutPluginConfig.class;
+    public Class<?> getConfigurationClass() {
+        return null;
     }
 }
