@@ -1,8 +1,5 @@
 package nu.wasis.stunden.plugins;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 import nu.wasis.stunden.model.Day;
 import nu.wasis.stunden.model.Entry;
@@ -11,7 +8,6 @@ import nu.wasis.stunden.plugin.OutputPlugin;
 import nu.wasis.stunden.util.DateUtils;
 
 import org.joda.time.Duration;
-import org.joda.time.Interval;
 
 @PluginImplementation
 public class StundenSTDOutPlugin implements OutputPlugin {
@@ -32,28 +28,39 @@ public class StundenSTDOutPlugin implements OutputPlugin {
             p("[Period contains no entries.]");
             return;
         }
+        
+        Duration totalWorkDuration = new Duration(0);
 
         for (final Day day : workPeriod.getDays()) {
             p("");
             p(day.getDate().toString(DateUtils.DATE_FORMATTER));
             p("==========");
-            final Map<String, Duration> durations = new HashMap<>();
+//            final Map<String, Duration> durations = new HashMap<>();
             for (final Entry entry : day.getEntries()) {
                 p(entry.getBegin().toString(DateUtils.TIME_FORMATTER) + " - " + entry.getEnd().toString(DateUtils.TIME_FORMATTER) + ": " + entry.getProject().getName() + (entry.isBreak() ? " (break)" : ""));
-                final Duration newDuration = new Interval(entry.getBegin(), entry.getEnd()).toDuration();
-                if (!durations.containsKey(entry.getProject().getName())) {
-                    durations.put(entry.getProject().getName(), newDuration);
-                } else {
-                    final Duration originalPeriod = durations.get(entry.getProject().getName());
-                    durations.put(entry.getProject().getName(), originalPeriod.plus(newDuration));
+                if (!entry.isBreak()) {
+                	totalWorkDuration = totalWorkDuration.plus(entry.getDuration());
+//	                final Duration newDuration = entry.getDuration();
+//	                if (!durations.containsKey(entry.getProject().getName())) {
+//	                    durations.put(entry.getProject().getName(), newDuration);
+//	                } else {
+//	                    final Duration originalPeriod = durations.get(entry.getProject().getName());
+//	                    durations.put(entry.getProject().getName(), originalPeriod.plus(newDuration));
+//	                }
                 }
             }
             p("Summary:");
-            for (final Map.Entry<String, Duration> entry : durations.entrySet()) {
-                p("\t" + entry.getKey() + ": " + entry.getValue().toPeriod().toString(DateUtils.PERIOD_FORMATTER));
-            }
-            p("\tTotal work time: " + DateUtils.PERIOD_FORMATTER.print(day.getWorkDuration().toPeriod()));//.normalizedStandard().toString(DateUtils.PERIOD_FORMATTER));
+//            for (final Map.Entry<String, Duration> entry : durations.entrySet()) {
+//                p("\t" + entry.getKey() + ": " + entry.getValue().toPeriod().toString(DateUtils.PERIOD_FORMATTER));
+//            }
+            p("\tTotal work time: " + DateUtils.PERIOD_FORMATTER.print(day.getWorkDuration().toPeriod()));
         }
+        p("TOTAL");
+        p("=====");
+        p("Work duration:\t" + DateUtils.PERIOD_FORMATTER.print(totalWorkDuration.toPeriod()));
+        final long minutesPerDay = totalWorkDuration.getStandardMinutes() / workPeriod.getDays().size();
+        p("Days:\t\t" + workPeriod.getDays().size());
+		p("Work/day:\t" + (minutesPerDay / 60) + ":" + minutesPerDay % 60);
     }
 
     @Override
