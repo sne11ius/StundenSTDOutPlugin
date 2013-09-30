@@ -7,6 +7,7 @@ import nu.wasis.stunden.model.WorkPeriod;
 import nu.wasis.stunden.plugin.OutputPlugin;
 import nu.wasis.stunden.util.DateUtils;
 
+import org.joda.time.DateTime;
 import org.joda.time.Duration;
 
 @PluginImplementation
@@ -60,7 +61,7 @@ public class StundenSTDOutPlugin implements OutputPlugin {
         p("Work duration:\t" + DateUtils.PERIOD_FORMATTER.print(totalWorkDuration.toPeriod()));
         final long minutesPerDay = totalWorkDuration.getStandardMinutes() / workPeriod.getDays().size();
         p("Days:\t\t" + workPeriod.getDays().size());
-		p("Work/day:\t" + (minutesPerDay / 60) + ":" + minutesPerDay % 60);
+		p("Work/day:\t" + DateUtils.TIME_FORMATTER.print(new DateTime(0, 1, 1, (int)minutesPerDay / 60, (int)minutesPerDay % 60)));
     }
 
     @Override
