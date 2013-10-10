@@ -10,15 +10,52 @@ import nu.wasis.stunden.util.DateUtils;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
 
+/**
+ * This {@link OutputPlugin} prints the {@link WorkPeriod} to stdout. Result
+ * will look something like this:
+ * <pre>
+ * Start of period	: 2013-09-02
+ * End of period	: 2013-09-30
+ * ============================
+ * 
+ * 1999-09-09
+ * ==========
+ * 09:00 - 10:00: Lunch (break) ==> 01:00
+ * 10:00 - 10:30: Project1 ==> 00:30
+ * 10:30 - 17:45: Project2 ==> 07:15
+ * 17:45 - 18:15: Project3 ==> 00:30
+ * Summary:
+ *     Total work time: 08:15
+ * 
+ * [...]
+ * 
+ * TOTAL
+ * =====
+ * Work duration: 167:00
+ * Days:          21
+ * Work/day:      07:57
+ * 
+ * </pre>
+ */
 @PluginImplementation
 public class StundenSTDOutPlugin implements OutputPlugin {
 
     // private static final Logger LOG = Logger.getLogger(StundenSTDOutPlugin.class);
 
+	/**
+	 * Shortcut for System.out.println ftw!
+	 * @param message The message to stdout.
+	 */
     private static final void p(final String message) {
         System.out.println(message);
     }
 
+    /**
+     * Print the given {@link WorkPeriod} to stdout. This plugin cannot be
+     * configured, so the <code>config</code> param is ignored.
+     * 
+     * @param config Ignored.
+     */
     @Override
     public void output(final WorkPeriod workPeriod, final Object config) {
         p("Start of period\t: " + workPeriod.getBegin().toString(DateUtils.DATE_FORMATTER));
@@ -58,6 +95,9 @@ public class StundenSTDOutPlugin implements OutputPlugin {
 		p("Work/day:\t" + DateUtils.TIME_FORMATTER.print(new DateTime(0, 1, 1, (int)minutesPerDay / 60, (int)minutesPerDay % 60)));
     }
 
+    /**
+     * This plugin cannot be configured.
+     */
     @Override
     public Class<?> getConfigurationClass() {
         return null;
