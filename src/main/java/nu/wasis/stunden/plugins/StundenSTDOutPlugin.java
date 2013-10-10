@@ -36,26 +36,20 @@ public class StundenSTDOutPlugin implements OutputPlugin {
             p("");
             p(day.getDate().toString(DateUtils.DATE_FORMATTER));
             p("==========");
-//            final Map<String, Duration> durations = new HashMap<>();
             for (final Entry entry : day.getEntries()) {
-                p(entry.getBegin().toString(DateUtils.TIME_FORMATTER) + " - " + entry.getEnd().toString(DateUtils.TIME_FORMATTER) + ": " + entry.getProject().getName() + (entry.isBreak() ? " (break)" : ""));
+                String line = entry.getBegin().toString(DateUtils.TIME_FORMATTER) + " - " + entry.getEnd().toString(DateUtils.TIME_FORMATTER) + ": " + entry.getProject().getName() + (entry.isBreak() ? " (break)" : "");
+                // line = StringUtils.rightPad(line, 60);
+                // line = line + DateUtils.PERIOD_FORMATTER.print(entry.getDuration().toPeriod());
+                line = line + " ==> " + DateUtils.PERIOD_FORMATTER.print(entry.getDuration().toPeriod());
+				p(line);
                 if (!entry.isBreak()) {
                 	totalWorkDuration = totalWorkDuration.plus(entry.getDuration());
-//	                final Duration newDuration = entry.getDuration();
-//	                if (!durations.containsKey(entry.getProject().getName())) {
-//	                    durations.put(entry.getProject().getName(), newDuration);
-//	                } else {
-//	                    final Duration originalPeriod = durations.get(entry.getProject().getName());
-//	                    durations.put(entry.getProject().getName(), originalPeriod.plus(newDuration));
-//	                }
                 }
             }
             p("Summary:");
-//            for (final Map.Entry<String, Duration> entry : durations.entrySet()) {
-//                p("\t" + entry.getKey() + ": " + entry.getValue().toPeriod().toString(DateUtils.PERIOD_FORMATTER));
-//            }
             p("\tTotal work time: " + DateUtils.PERIOD_FORMATTER.print(day.getWorkDuration().toPeriod()));
         }
+        p("");
         p("TOTAL");
         p("=====");
         p("Work duration:\t" + DateUtils.PERIOD_FORMATTER.print(totalWorkDuration.toPeriod()));
